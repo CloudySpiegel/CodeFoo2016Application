@@ -1,0 +1,164 @@
+
+
+<!-- Credit to Mike McGrath, (mike_mcgrath@lineone.net), for writing the freely-available boilerplate code that this was borrowed for this CodeFoo bonus question.  -->
+
+<!DOCTYPE html>    
+<head>
+    <meta charset="utf-8">
+    <title>Code 2016 Bonus Blackjack</title>
+	<link rel="stylesheet" type="text/css" href="test.css">
+
+</head>
+
+
+<body> 
+
+
+<style>
+
+display: none;  /* No floating content on sides *
+
+
+}
+</style>
+<script type='text/javascript'>
+var gameOver; var cardCount;
+function Shuffle(max){
+var num=Math.random()*max;
+return Math.round(num)+1;
+}
+function getSuit(){
+suit = Shuffle(4);
+if(suit == 1) return "Spades";
+if(suit == 2) return "Clubs";
+if(suit == 3) return "Diamonds";
+else return "Hearts";
+}
+function assignCardName(card){
+if(card == 1) return "Ace";
+if(card == 11) return "Jack";
+if(card == 12) return "Queen";
+if(card == 13) return "King";
+return "" + card;
+}
+function assignCardValue(card,strWho){
+if(card == 1) {
+	if(strWho =="You" && document.display.you.value >10){
+	document.display.say2.value=document.display.say2.value+" Low"; return 1;}
+	else return 11; }
+ if(card > 10) return 10;
+return card;
+}
+function PickACard(strWho){
+card = Shuffle(12);
+suit = getSuit();
+if(strWho =="You")
+document.display.say2.value=(assignCardName(card) + " of " + suit);
+else
+document.display.say1.value=(assignCardName(card) + " of " + suit);
+return assignCardValue(card,strWho);
+}
+function NewHand(form){
+if(gameOver !=0)
+{form.say1.value=("Hand in Play!"); form.say2.value=(""); return;}
+else
+{form.dealer.value = 0; form.you.value = 0; cardCount=0;
+form.dealer.value = eval(form.dealer.value) + PickACard("Dealer");
+form.you.value = eval(form.you.value) + PickACard("You");
+gameOver= -1; cardCount+=1;}
+}
+function Dealer(form){
+if (gameOver ==0)
+{form.say1.value=("Deal the Cards!"); form.say2.value=(""); return;}
+else
+if(form.you.value<10)
+{form.say1.value=("Not Below Ten!"); form.say2.value=("Take a Hit!"); return;}
+else
+if (cardCount <2)
+{form.say1.value=("Minimum 2 Cards!"); form.say2.value=("Hit Again!"); return;}
+else
+while(form.dealer.value < 17)
+{form.dealer.value = eval(form.dealer.value) + PickACard("Dealer");}
+}
+function User(form){
+if (gameOver ==0)
+{form.say1.value=("Deal the Cards!"); form.say2.value=(""); return;}
+else
+{cardCount+=1; form.say1.value=("You Get...");
+form.you.value = eval(form.you.value) + PickACard("You");}
+if(form.you.value > 21)
+{form.say1.value=("You Busted!");
+gameOver=0; form.numgames.value=eval(form.numgames.value)-1;}
+if(form.you.value == 21)
+alert("Not hitting on 21? Don't you like to live dangerously?");
+}
+
+function LookAtHands(form){
+if (gameOver ==0 || form.you.value<10 || cardCount <2){return;}
+else
+if(form.dealer.value > 21)
+{form.say1.value=("House Busts!"); form.say2.value=("You Win! $$$$$$");
+gameOver=0; form.numgames.value=eval(form.numgames.value)+1;}
+ else
+if(form.you.value > form.dealer.value)
+{form.say1.value=("You Win!"); form.say2.value=("$$$$$$$$$$$$$$$");
+gameOver=0; form.numgames.value=eval(form.numgames.value)+1;}
+ else
+ if(form.dealer.value == form.you.value)
+{form.say1.value=("Game Tied!"); form.say2.value=("Try Again!");
+gameOver=0; form.numgames.value=eval(form.numgames.value)-1;}
+ else
+{form.say1.value=("House Wins!"); form.say2.value=("Tough Luck!");
+gameOver=0; form.numgames.value=eval(form.numgames.value)-1;}
+}
+function setBj(){
+gameOver=0; cardCount=0;
+document.display.dealer.value="";
+document.display.you.value="";
+document.display.numgames.value="0";
+document.display.say1.value="    Hit 'Deal'";
+document.display.say2.value="    To Start!";
+}
+// End -->
+</script>
+
+ 
+
+ 
+ 
+ </body>
+
+ 
+ <BODY OnLoad="setBj()">
+
+<center>
+<form name="display">
+<table bgcolor="#c0c0c0" border="1" cellspacing="0" cellpadding="3">
+<tr>
+<td><center>Score:</center></td>
+<td><center>Dealer</center></td>
+<td><center><input type=text name="dealer" size="2"></center></td>
+<td><center>Card(s):  <input type=text name="say1" size="18" value=""></center></td>
+</tr>
+<tr>
+<td><center><input type=text name="numgames" size="3" value="0"></center></td>
+<td><center>Player</center></td>
+<td><center><input type=text name="you" size="2"></center></td>
+<td><center>Card(s):  <input type=text name="say2" size="18" value=""></center></td>
+</tr>
+<tr>
+<td><center><input type=button value="Deal" onClick="NewHand(this.form)"></center></td>
+<td colspan=3><center>
+<input type=button value="Stand" onClick="Dealer(this.form);LookAtHands(this.form);">
+<input type=button value=" Hit " onClick="User(this.form)"></center></td></tr>
+</table>
+</form>
+</center>
+ 
+ 
+ 
+ 
+ 
+ 
+
+</html>

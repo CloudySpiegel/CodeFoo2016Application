@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang = "en-US">
+ <head>
+ <meta charset = "UTF-8">
+ <title>textBoxes.html</title>
+ 
+ 
+ 
+ <script type='text/javascript'>
+var dictionary;
+var sortedDictionary=[];
+var highestPointTotal=0;
+var bestWords=[' n/a '];
+ 
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function(){
+  if(xhr.status==200 && xhr.readyState==4){    
+     dictionary= xhr.responseText.split("\n");
+
+  }
+}
+xhr.open("GET","http://www.ign.com/code-foo/2016/words.txt",false);  //get dictionary words from source file
+xhr.send();
+
+sortDictionary();
+
+function clearPointsAndWords(){
+highestPointTotal=0;
+bestWords=[];
+}
+
+function sortDictionary(){										//sort dictionary words from shortest to longest
+	var dictionaryLength=dictionary.length;						//and note array indices where word length changes(not shown) 
+	for(i=1;i<=11;i++){
+		for(j=0;j<dictionaryLength;j++){
+			var currWord=dictionary[j];
+			var currWordLength=currWord.length;
+			if(currWordLength==i){
+				sortedDictionary.push(currWord);
+			}
+			
+		}
+	}
+}
+
+function returnDictionaryStartIndex(wordLength){
+	if(wordLength<=3){
+		return 0;
+	}
+	if(wordLength==4){
+		return 18;
+	}
+	if(wordLength==5){                               //indices where word lengths change
+		return 51;
+	}
+	if(wordLength==6){
+		return 84;
+	}
+	if(wordLength==7){
+		return 120;
+	}
+	if(wordLength==8){
+		return 144;
+	}
+	if(wordLength==9){
+		return 175;
+	}
+	if(wordLength==10){
+		return 185;
+	}
+	if(wordLength>=11){
+		return 197;
+	}
+}
+
+
+function returnDictionaryEndIndex(wordLength){           //indices where word lengths change
+	if(wordLength<=3){
+		return 17;
+	}
+	if(wordLength==4){
+		return 50;
+	}
+	if(wordLength==5){
+		return 83;
+	}
+	if(wordLength==6){
+		return 119;
+	}
+	if(wordLength==7){
+		return 143;
+	}
+	if(wordLength==8){
+		return 174;
+	}
+	if(wordLength==9){
+		return 184;
+	}
+	if(wordLength==10){
+		return 196;
+	}
+	if(wordLength>=11){
+		return 201;
+	}
+}
+
+function getCharPointValue(char){
+	var points=0;
+	if(char=='a'||char=='e'||char=='i'||char=='o'||char=='u'||char=='l'||char=='n'||char=='s'||char=='t'||char=='r'){
+	points=1;
+	}
+	if(char=='d'||char=='g'){
+	points=2;
+	}
+	if(char=='b'||char=='c'||char=='m'||char=='p'){
+	points=3;
+	}
+	if(char=='f'||char=='h'||char=='v'||char=='w'||char=='y'){             //adding point values of letters in a word
+	points=4;
+	}
+	if(char=='k'){
+	points=5;
+	}
+	if(char=='j'||char=='x'){
+	points=8;
+	}
+	if(char=='q'||char=='z'){
+	points=10;
+	}
+	
+	return points;
+}
+
+function getWordPointValue(word){
+	var pointTotal=0;
+	if(typeof word=='string'){
+		var chars=word.split('');
+	}
+	else{
+	var chars=word;
+	}
+	for(letter=0;letter<chars.length;letter++){
+	pointTotal+=getCharPointValue(chars[letter]);
+	}
+	return pointTotal;
+}
+
+
+function letterInListAt(letter, list){                           //looping through a list of letters until a certain letter is
+	if(typeof list=='string'){									//found, if it exists
+		var lettersInList=list.split('');
+	}
+	else{
+		var lettersInList=list;
+	}
+		var isLetterInList=false;
+		var letterInListAt;
+	
+	for(i=0;i<lettersInList.length;i++){
+		var currLetterInList=lettersInList[i];
+		if(currLetterInList==letter){
+			isLetterInList=true;
+			letterInListAt=i;
+			
+			break;
+		}	
+	}
+	
+	if(isLetterInList){
+		return letterInListAt;	
+	}
+	else{
+		return 'notInList';
+	}	
+}
+	
+
+function checkForWordInLetterList(dictionaryWord,letterListInput){  //for every letter in a word, check if it's
+	var dictionaryWordLength=dictionaryWord.length;					// in the given list.  It is is, remove that letter from the
+	var letterListLength=letterListInput.length;					//list and check the new list for the next letter.
+	var currListSegmentToCheck=letterListInput.split('');			//If letter not in list, neither is the word 
+	var dictionaryWordLettersFound=0;
+	var wordFound=false;
+	
+	for(itr=0;itr<dictionaryWordLength;itr++){
+			var wordLetterToCheck=dictionaryWord[itr];
+			var listIndexOfWordLetter=letterInListAt(wordLetterToCheck,currListSegmentToCheck);
+			if(listIndexOfWordLetter=='notInList'){
+				wordFound=false;
+				break;
+			}
+			
+			if(listIndexOfWordLetter!='notInList'){
+				currListSegmentToCheck.splice(listIndexOfWordLetter,1);
+				dictionaryWordLettersFound++;
+				if(dictionaryWordLettersFound>=dictionaryWordLength){
+					wordFound=true;
+					break;
+					
+					}
+				
+				}
+			
+			}
+		return(wordFound);
+		}
+
+	function adjustWordLength(length){
+		if(length<3){
+			length=3;
+		}
+		if(length>11){
+			length=11;
+		}
+		return length;
+		
+	}
+	
+	function checkForWordsInDictionary(lettersInput){
+		var lettersInputLength=adjustWordLength(lettersInput.length);  //check the letter list for each word in dictionary
+		for(wordSize=3;wordSize<=lettersInputLength;wordSize++){		//that is up to the length of the letter list
+			var startIndex=returnDictionaryStartIndex(wordSize);		//show words and associated points,
+			var endIndex=returnDictionaryEndIndex(wordSize);			//set aside highest scoring one
+
+			for (j=startIndex;j<=endIndex;j++){
+				var currentWord=sortedDictionary[j];
+				var isWordFound=checkForWordInLetterList(currentWord,lettersInput.toLowerCase());
+				if(isWordFound==true){
+				var pointsWorth=getWordPointValue(currentWord);
+				alert('WORD FOUND!!!!!!   '+currentWord+"   points:  "+pointsWorth);
+				if (pointsWorth==highestPointTotal){
+					bestWords.push(currentWord);
+				}
+				if (pointsWorth>highestPointTotal){
+					highestPointTotal=pointsWorth;
+					bestWords=[currentWord];
+				}
+		
+				}
+				
+			}
+		}
+		alert('Best-scoring possible word/s in data source is/are: ' +bestWords+  " for "+highestPointTotal+" points." );
+		clearPointsAndWords();
+	}
+ 
+ </script>
+
+ </head>
+ <body>
+ <h1>Scrabble Best Word Calculator</h1>
+ <form action = "">
+  <fieldset>
+  <label>Type letters here: </label>
+  <input type = "text"
+    id = "txtName" />
+  <input type = "button"
+    value = "Click to see highest-scoring possible word."
+    onclick = "checkForWordsInDictionary(txtName.value)"/>
+  </fieldset>
+ </form>
+ </body>
+</html>
+
+<!DOCTYPE html>    
+<head>
+    <meta charset="utf-8">
+    <title>CodeFoo 2015</title>
+	<link rel="stylesheet" type="text/css" href="test.css">
+
+</head>
+
+
+<body> 
+
+
+<style>
+
+display: none;  /* No floating content on sides *
+}
+</style>
+
+
+ 
+ </body>
+
+
+</html>
